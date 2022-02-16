@@ -16,9 +16,9 @@ class RateLimiterService {
   val rateLimiterMap: mutable.Map[String, RateLimiterT] = collection.mutable.Map[String, RateLimiterT]()
 
   val rateLimterDefaultConfig: RateLimiterConf = {
-    val request_limit: Long = configCheckAndGetLong("rate-limiter-default-config.request-limit", 50)
-    val period_millis: Long = configCheckAndGetLong("rate-limiter-default-config.period-millis", 10000)
-    val algorithm: String = configCheckAndGetString("rate-limiter-default-config.algorithm", RateLimiterAlgorithms.tokenBucket)
+    val request_limit: Long = configCheckAndGetLong("rate-limiter-default-config.request-limit", 50, config)
+    val period_millis: Long = configCheckAndGetLong("rate-limiter-default-config.period-millis", 10000, config)
+    val algorithm: String = configCheckAndGetString("rate-limiter-default-config.algorithm", RateLimiterAlgorithms.tokenBucket, config)
     RateLimiterConf(request_limit, period_millis, algorithm)
   }
 
@@ -45,20 +45,20 @@ class RateLimiterService {
     else rateLimterDefaultConfig
   }
 
-  def convertConfigToCase(config: Config): RateLimiterConf = {
-    val request_limit: Long = configCheckAndGetLong("request-limit", rateLimterDefaultConfig.request_limit)
-    val period_millis: Long = configCheckAndGetLong("period-millis", rateLimterDefaultConfig.period_millis)
-    val algorithm: String = configCheckAndGetString("algorithm", rateLimterDefaultConfig.algorithm)
+  def convertConfigToCase(localConfig: Config): RateLimiterConf = {
+    val request_limit: Long = configCheckAndGetLong("request-limit", rateLimterDefaultConfig.request_limit, localConfig)
+    val period_millis: Long = configCheckAndGetLong("period-millis", rateLimterDefaultConfig.period_millis, localConfig)
+    val algorithm: String = configCheckAndGetString("algorithm", rateLimterDefaultConfig.algorithm, localConfig)
     RateLimiterConf(request_limit, period_millis, algorithm)
   }
 
-  def configCheckAndGetString(key: String, defaultVal: String): String = {
-    if(config.hasPath(key)) config.getString(key)
+  def configCheckAndGetString(key: String, defaultVal: String, localConfig: Config): String = {
+    if(localConfig.hasPath(key)) localConfig.getString(key)
     else defaultVal
   }
 
-  def configCheckAndGetLong(key: String, defaultVal: Long): Long = {
-    if(config.hasPath(key)) config.getLong(key)
+  def configCheckAndGetLong(key: String, defaultVal: Long, localConfig: Config): Long = {
+    if(localConfig.hasPath(key)) localConfig.getLong(key)
     else defaultVal
   }
 
