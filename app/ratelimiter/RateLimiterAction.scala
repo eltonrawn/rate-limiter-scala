@@ -1,6 +1,5 @@
 package ratelimiter
 
-import play.api.Logger
 import play.api.mvc.Results.TooManyRequests
 import play.api.mvc.{Action, BodyParser, Request, Result}
 import play.api.routing.Router

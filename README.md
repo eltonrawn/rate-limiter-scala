@@ -29,7 +29,9 @@ config can be found in "conf/application.conf" with format ->
 
 Config falls back to "rate-limiter-default-config" if any uri doesn't exist in "rate-limiter-key-value-config"
 
-any pattern supported by play framework can be place in "conf/routes" folder but uri in "rate-limiter-key-value-config" only supports regular expression for now. Regex details can be found here -> https://www.playframework.com/documentation/2.8.x/ScalaRouting#Dynamic-parts-with-custom-regular-expressions
+Any uri pattern supported by play framework can be placed in "conf/routes" folder but uri in 
+"rate-limiter-key-value-config" only supports regular expression for now. Regex details can be found here -> 
+https://www.playframework.com/documentation/2.8.x/ScalaRouting#Dynamic-parts-with-custom-regular-expressions
 
 3 values can be set in config ->
 
@@ -37,21 +39,37 @@ any pattern supported by play framework can be place in "conf/routes" folder but
     "period-millis" -> Length of the period in millisecond
     "algorithm" -> Rate limiting algorithm
 
-Two implementations exist for now ->
+Two rate-limiting algorithm implementations exist for now ->
 
     "token-bucket"
     "sliding-logs"
 
+Development
+-----------
+Decorator pattern is used to provide rate-limiting functionality where any action returned by controller can be 
+wrapped by "ratelimiter.RateLimiterAction". Example can be found in "hotel.HotelController" 
 
-Local Deployment
-----------
-There should be "public/hoteldb.csv" file present with format ->
-    
+"ratelimiter.RateLimiterService" provides all the book-keeping for singleton-instances of every unique 
+"ratelimiter.RateLimiterAction". "Factory" and "Singleton" pattern is used to implement this.
+
+Rate-limiter algorithm implementations can be found under "ratelimiter.implementations.*" 
+
+Files related to route, log and configuration are placed under "conf/"
+
+All ratelimiter files reside in "ratelimiter" package
+
+All api related files reside in "hotel" package
+
+There should be "public/hoteldb.csv" file present. Failed to do so will generate error (Intentional). Format ->
+
     CITY,HOTELID,ROOM,PRICE
     XX,XX,XX,XX
     XX,XX,XX,XX
 
-Component version:
+Local Deployment
+----------
+
+Components should be installed with version:
 
     java -> 1.8
     scala -> 2.13.8
@@ -64,3 +82,10 @@ To start the server, run:
 To trigger functional tests, run:
 
     sbt test
+
+Future work:
+-----------
+1. Provide library for easy integration. (providing functionality with annotation would have been convenient)
+2. Routes in "conf/application.conf" only support regex. Provide flexible route support in config.
+3. Add more rate-limiting algorithm implementations.
+4. Only integration tests given for now. Add unit tests to increase test-coverage.
