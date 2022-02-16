@@ -59,6 +59,13 @@ Files related to route, log and configuration are placed under "conf/"
 All ratelimiter files reside in "ratelimiter" package
 
 All api related files reside in "hotel" package
+ 
+    routes
+    /city/:id
+    /room/:id
+    routes also support optional query parameters
+    /city/:id?asc=true
+    /room/:id?asc=false
 
 There should be "public/hoteldb.csv" file present. Failed to do so will generate error (Intentional). Format ->
 

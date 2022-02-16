@@ -13,7 +13,11 @@ class HotelController @Inject()(hotelService: HotelService, rateLimiterService: 
   val logger: Logger = Logger(this.getClass())
   def getCityById(id: String): Action[AnyContent] = RateLimiterAction(rateLimiterService) {
     Action { request =>
-      hotelService.getColumnById(id, "CITY") match {
+      val isAsc: Option[Boolean] = try {
+        Some(request.queryString.map{case(k, v) => k -> v.mkString}.get("asc").get.toBoolean)
+      }
+      catch {case e => None}
+      hotelService.getColumnById(id, "CITY", isAsc) match {
         case Success(value) => {
           val json = Json.toJson(value)
           logger.info("no_of_request_left " + rateLimiterService.getObject(request.attrs(Router.Attrs.HandlerDef).path).noOfRequestLeft())
@@ -28,7 +32,11 @@ class HotelController @Inject()(hotelService: HotelService, rateLimiterService: 
 
   def getRoomById(id: String): Action[AnyContent] = RateLimiterAction(rateLimiterService) {
     Action { request =>
-      hotelService.getColumnById(id, "ROOM") match {
+      val isAsc: Option[Boolean] = try {
+        Some(request.queryString.map{case(k, v) => k -> v.mkString}.get("asc").get.toBoolean)
+      }
+      catch {case _ => None}
+      hotelService.getColumnById(id, "ROOM", isAsc) match {
         case Success(value) => {
           val json = Json.toJson(value)
           logger.info("no_of_request_left " + rateLimiterService.getObject(request.attrs(Router.Attrs.HandlerDef).path).noOfRequestLeft())
