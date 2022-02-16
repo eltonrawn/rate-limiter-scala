@@ -6,7 +6,7 @@ import ratelimiter.implementations.TokenBucket
 
 import javax.inject.Singleton
 
-case class RateLimiterConf(request_limit: Long, period_millis: Long)
+case class RateLimiterConf(request_limit: Long, period_millis: Long, algorithm: String)
 
 @Singleton
 class RateLimiterService {
@@ -26,7 +26,13 @@ class RateLimiterService {
       }
       else 10000
     }
-    RateLimiterConf(request_limit, period_millis)
+    val algorithm: String = {
+      if(config.hasPath("rate-limiter-default-config.algorithm")) {
+        config.getString("rate-limiter-default-config.algorithm")
+      }
+      else RateLimiterAlgorithms.tokenBucket
+    }
+    RateLimiterConf(request_limit, period_millis, algorithm)
   }
 
   def getObject(key: String): RateLimiterT =  {
@@ -37,7 +43,10 @@ class RateLimiterService {
       if(!rateLimiterMap.contains(key)) {
         val rateLimiterConfig: RateLimiterConf = getRateLimiterConfig(key)
         logger.info("rateLimiterconfig: " + rateLimiterConfig.toString)
-        rateLimiterMap(key) = new TokenBucket(rateLimiterConfig.request_limit, rateLimiterConfig.period_millis)
+        rateLimiterMap(key) = rateLimiterConfig.algorithm match {
+          case RateLimiterAlgorithms.tokenBucket => new TokenBucket(rateLimiterConfig.request_limit, rateLimiterConfig.period_millis)
+          case _ => new TokenBucket(rateLimiterConfig.request_limit, rateLimiterConfig.period_millis)
+        }
       }
       return rateLimiterMap(key)
     }
@@ -58,7 +67,11 @@ class RateLimiterService {
       if(config.hasPath("period-millis")) config.getLong("period-millis")
       else rateLimterDefaultConfig.period_millis
     }
-    RateLimiterConf(request_limit, period_millis)
+    val algorithm: String = {
+      if(config.hasPath("algorithm")) config.getString("algorithm")
+      else rateLimterDefaultConfig.algorithm
+    }
+    RateLimiterConf(request_limit, period_millis, algorithm)
   }
 
 }
