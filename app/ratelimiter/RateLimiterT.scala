@@ -1,6 +1,6 @@
 package ratelimiter
 
 trait RateLimiterT {
-  def allowRequest(tokens: Long): Boolean
+  def allowRequest(): Boolean
   def noOfRequestLeft(): Long
 }

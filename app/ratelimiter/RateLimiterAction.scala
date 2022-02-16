@@ -2,17 +2,17 @@ package ratelimiter
 
 import play.api.Logger
 import play.api.mvc.Results.TooManyRequests
-import play.api.mvc.{Action, Request, Result}
+import play.api.mvc.{Action, BodyParser, Request, Result}
 import play.api.routing.Router
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 case class RateLimiterAction[A](rateLimiterService: RateLimiterService)(action: Action[A]) extends Action[A] {
   def apply(request: Request[A]): Future[Result] = {
     val rateLimiter: RateLimiterT = rateLimiterService.getObject(request.attrs(Router.Attrs.HandlerDef).path)
 //    println(request.remoteAddress)
 
-    if (rateLimiter.allowRequest(1)) {
+    if (rateLimiter.allowRequest()) {
       action(request)
     }
     else {
@@ -20,7 +20,7 @@ case class RateLimiterAction[A](rateLimiterService: RateLimiterService)(action: 
     }
   }
 
-  override def parser = action.parser
+  override def parser: BodyParser[A] = action.parser
 
-  override def executionContext = action.executionContext
+  override def executionContext: ExecutionContext = action.executionContext
 }

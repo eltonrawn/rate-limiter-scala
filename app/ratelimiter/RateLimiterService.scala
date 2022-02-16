@@ -2,7 +2,7 @@ package ratelimiter
 
 import com.typesafe.config.{Config, ConfigFactory}
 import play.api.Logger
-import ratelimiter.implementations.TokenBucket
+import ratelimiter.implementations.{SlidingLogs, TokenBucket}
 
 import javax.inject.Singleton
 import scala.collection.mutable
@@ -31,7 +31,7 @@ class RateLimiterService {
         val rateLimiterConfig: RateLimiterConf = getRateLimiterConfig(key)
         logger.info("rateLimiterconfig: " + rateLimiterConfig.toString)
         rateLimiterMap(key) = rateLimiterConfig.algorithm match {
-          case RateLimiterAlgorithms.tokenBucket => new TokenBucket(rateLimiterConfig.request_limit, rateLimiterConfig.period_millis)
+          case RateLimiterAlgorithms.slidingLogs => new SlidingLogs(rateLimiterConfig.request_limit, rateLimiterConfig.period_millis)
           case _ => new TokenBucket(rateLimiterConfig.request_limit, rateLimiterConfig.period_millis)
         }
       }

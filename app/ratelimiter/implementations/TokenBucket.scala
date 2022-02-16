@@ -2,23 +2,23 @@ package ratelimiter.implementations
 
 import ratelimiter.RateLimiterT
 
-class TokenBucket(val noOfRequest: Long, val refillRate: Long) extends RateLimiterT {
-  var currentBucketSize: Long = noOfRequest
+class TokenBucket(val request_limit: Long, val period_millis: Long) extends RateLimiterT {
+  var currentBucketSize: Long = request_limit
   var lastRefillTS: Long = System.currentTimeMillis()
 
   def refill(): Unit = {
     val curTS: Long = System.currentTimeMillis()
-    if(curTS > lastRefillTS + refillRate) {
+    if(curTS > lastRefillTS + period_millis) {
       lastRefillTS = curTS
-      currentBucketSize = noOfRequest
+      currentBucketSize = request_limit
     }
   }
 
-  def allowRequest(tokens: Long): Boolean = {
+  def allowRequest(): Boolean = {
     this.synchronized {
       refill()
-      if (currentBucketSize >= tokens) {
-        currentBucketSize -= tokens
+      if (currentBucketSize >= 1) {
+        currentBucketSize -= 1
         true
       }
       else {
