@@ -5,7 +5,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import play.api.routing.Router
 import ratelimiter.{RateLimiterAction, RateLimiterService}
-
+import scala.util.{Try,Success,Failure}
 import javax.inject.{Inject, Singleton}
 
 @Singleton
@@ -13,9 +13,14 @@ class HotelController @Inject()(hotelService: HotelService, rateLimiterService: 
   val logger: Logger = Logger(this.getClass())
   def getCityById(id: String): Action[AnyContent] = RateLimiterAction(rateLimiterService) {
     Action { request =>
-      val json = Json.toJson(hotelService.getColumnById(id, "CITY"))
-      logger.info("no_of_request_left " + rateLimiterService.getObject(request.attrs(Router.Attrs.HandlerDef).path).noOfRequestLeft())
-      Ok(json)
+      hotelService.getColumnById(id, "CITY") match {
+        case Success(value) => {
+          val json = Json.toJson(value)
+          logger.info("no_of_request_left " + rateLimiterService.getObject(request.attrs(Router.Attrs.HandlerDef).path).noOfRequestLeft())
+          Ok(json)
+        }
+        case Failure(s) => InternalServerError
+      }
     }
   }
 //  equivalent to
@@ -23,9 +28,14 @@ class HotelController @Inject()(hotelService: HotelService, rateLimiterService: 
 
   def getRoomById(id: String): Action[AnyContent] = RateLimiterAction(rateLimiterService) {
     Action { request =>
-      val json = Json.toJson(hotelService.getColumnById(id, "ROOM"))
-      logger.info("no_of_request_left " + rateLimiterService.getObject(request.attrs(Router.Attrs.HandlerDef).path).noOfRequestLeft())
-      Ok(json)
+      hotelService.getColumnById(id, "ROOM") match {
+        case Success(value) => {
+          val json = Json.toJson(value)
+          logger.info("no_of_request_left " + rateLimiterService.getObject(request.attrs(Router.Attrs.HandlerDef).path).noOfRequestLeft())
+          Ok(json)
+        }
+        case Failure(s) => InternalServerError
+      }
     }
   }
 }
