@@ -5,6 +5,7 @@ import play.api.Logger
 import ratelimiter.implementations.TokenBucket
 
 import javax.inject.Singleton
+import scala.collection.mutable
 
 case class RateLimiterConf(request_limit: Long, period_millis: Long, algorithm: String)
 
@@ -12,26 +13,12 @@ case class RateLimiterConf(request_limit: Long, period_millis: Long, algorithm: 
 class RateLimiterService {
   val logger: Logger = Logger(this.getClass())
   val config: Config = ConfigFactory.load()
-  val rateLimiterMap = collection.mutable.Map[String, RateLimiterT]()
+  val rateLimiterMap: mutable.Map[String, RateLimiterT] = collection.mutable.Map[String, RateLimiterT]()
+
   val rateLimterDefaultConfig: RateLimiterConf = {
-    val request_limit: Long = {
-      if(config.hasPath("rate-limiter-default-config.request-limit")) {
-        config.getLong("rate-limiter-default-config.request-limit")
-      }
-      else 50
-    }
-    val period_millis: Long = {
-      if(config.hasPath("rate-limiter-default-config.period-millis")) {
-        config.getLong("rate-limiter-default-config.period-millis")
-      }
-      else 10000
-    }
-    val algorithm: String = {
-      if(config.hasPath("rate-limiter-default-config.algorithm")) {
-        config.getString("rate-limiter-default-config.algorithm")
-      }
-      else RateLimiterAlgorithms.tokenBucket
-    }
+    val request_limit: Long = configCheckAndGetLong("rate-limiter-default-config.request-limit", 50)
+    val period_millis: Long = configCheckAndGetLong("rate-limiter-default-config.period-millis", 10000)
+    val algorithm: String = configCheckAndGetString("rate-limiter-default-config.algorithm", RateLimiterAlgorithms.tokenBucket)
     RateLimiterConf(request_limit, period_millis, algorithm)
   }
 
@@ -59,19 +46,20 @@ class RateLimiterService {
   }
 
   def convertConfigToCase(config: Config): RateLimiterConf = {
-    val request_limit: Long = {
-      if(config.hasPath("request-limit")) config.getLong("request-limit")
-      else rateLimterDefaultConfig.request_limit
-    }
-    val period_millis: Long = {
-      if(config.hasPath("period-millis")) config.getLong("period-millis")
-      else rateLimterDefaultConfig.period_millis
-    }
-    val algorithm: String = {
-      if(config.hasPath("algorithm")) config.getString("algorithm")
-      else rateLimterDefaultConfig.algorithm
-    }
+    val request_limit: Long = configCheckAndGetLong("request-limit", rateLimterDefaultConfig.request_limit)
+    val period_millis: Long = configCheckAndGetLong("period-millis", rateLimterDefaultConfig.period_millis)
+    val algorithm: String = configCheckAndGetString("algorithm", rateLimterDefaultConfig.algorithm)
     RateLimiterConf(request_limit, period_millis, algorithm)
+  }
+
+  def configCheckAndGetString(key: String, defaultVal: String): String = {
+    if(config.hasPath(key)) config.getString(key)
+    else defaultVal
+  }
+
+  def configCheckAndGetLong(key: String, defaultVal: Long): Long = {
+    if(config.hasPath(key)) config.getLong(key)
+    else defaultVal
   }
 
 }
