@@ -66,6 +66,17 @@ There should be "public/hoteldb.csv" file present. Failed to do so will generate
     XX,XX,XX,XX
     XX,XX,XX,XX
 
+Ide run/debug setup for intellij (for personal documentation)
+    
+    go to edit configurations
+    add new configuration -> sbt task
+    give a name and write "run" in text-box under tasks
+    click apply and ok (till this would allow us to run app through ide)
+    go to settings->build,execution,deployment->build tools->sbt
+    tick project reload and builds under sbt shell
+    tick enable debugging (till this would allow us to debug app through ide)
+
+
 Local Deployment
 ----------
 
