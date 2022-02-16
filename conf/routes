@@ -7,7 +7,7 @@
 # GET     /city/:id                       hotel.HotelController.getCityById(id: String)
 # GET     /room/:id                       hotel.HotelController.getRoomById(id: String)
 
-GET     /city/$id<[^/]+>                       hotel.HotelController.getCityById(id: String)
+GET     /city/:id                              hotel.HotelController.getCityById(id: String)
 GET     /room/$id<[^/]+>                       hotel.HotelController.getRoomById(id: String)
 
 # Map static resources from the /public folder to the /assets URL path
