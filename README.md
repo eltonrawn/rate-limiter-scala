@@ -1,6 +1,6 @@
 Rate Limiter Scala
 ------------------
-Rate limiter implemented with scala.
+Rate limiter implemented with scala and play framework.
 
 Config
 ------
@@ -100,6 +100,10 @@ To start the server, run:
 To trigger functional tests, run:
 
     sbt test
+
+Production Deployment
+---------------------
+https://www.playframework.com/documentation/2.8.x/Deploying
 
 Future work:
 -----------
