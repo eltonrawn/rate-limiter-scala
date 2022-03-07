@@ -46,7 +46,7 @@ class RateLimiterSpec extends PlaySpec with GuiceOneServerPerTest {
     val myPublicAddress = s"localhost:$port"
     val api1 = s"http://$myPublicAddress/city/1"
     val api2 = s"http://$myPublicAddress/room/1"
-    val futureOperations: List[Future[WSRequest#Response]] = List.fill(limit)(wsClient.url(api1).get()) ::: List.fill(limit)(wsClient.url(api2).get())
+    val futureOperations: List[Future[WSRequest#Response]] = List.fill(limit1)(wsClient.url(api1).get()) ::: List.fill(limit2)(wsClient.url(api2).get())
 
     val futureFoldLeft = Future.foldLeft(futureOperations)(0L){ case (sum, request) =>
       sum + (if (request.status == OK) 1 else 0)
@@ -68,7 +68,7 @@ class RateLimiterSpec extends PlaySpec with GuiceOneServerPerTest {
     testRateLimitForSingleEntity("room")
   }
   "(n + 1)th request for both city and room endpoint is TOO_MANY_REQUESTS given that limit is n in config" in {
-    testRateLimitForSingleEntity("room")
+    testRateLimitForBothEntity()
   }
   "refill works properly given that policy is dynamic" in {
     val entity = "city"
